@@ -1,0 +1,7 @@
+{
+    "name": "Test Server",
+    "user": {
+        "name": "TestUser1",
+        "passwd": "123"
+    }
+}
