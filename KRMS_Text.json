@@ -1,0 +1,22 @@
+{
+    "Agreement": {
+        "KO": "KRMS 는 CPU, RAM, disk, MACADDR, OS Information 의 접근 권한과 네트워크 통신 권한을 필요로 합니다.",
+        "EN": "KRMS requires access to CPU, RAM, disk, MACADDR OS Information and network communication privileges."
+    },
+    "SettingLoadSuccess": {
+        "KO": "설정 로드 완료",
+        "EN": "Finished loading settings"
+    },
+    "Login": {
+        "KO": "로그인 중..",
+        "EN": "Loginning"
+    },
+    "LoginFaild": {
+        "KO": "로그인 실패, KRMS 계정을 정확히 입력해 주세요 http://krms.kro.kr",
+        "EN": "Login Faild, Check your KRMS Account http://krms.kro.kr"
+    },
+    "ConnectingToServer": {
+        "KO": "서버 연결 중..",
+        "EN": "Connecting to Server"
+    }
+}

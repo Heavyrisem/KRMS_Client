@@ -1,28 +1,78 @@
 
 import io from 'socket.io-client';
 import { ClientInfo, ClientUsage } from '../Types';
-import * as Config from './Config/main.json';
+import DeafultSetting from './Settings/KRMS_Default.json';
+import Text from './KRMS_Text.json';
 import { GetDisksStatus, GetSystemUsage, init } from './monitor';
 import axios from 'axios';
+import fs from 'fs';
+import { Setting } from './Settings/Setting';
+
+import Package from './package.json';
+
+const CheckConfigFile = ():Promise<Setting> => {
+    return new Promise(resolve => {
+        fs.stat('./KRMS_Setting.json', (err, stats) => {
+            if (err) {
+                console.log("설정 파일이 존재하지 않습니다.", process.cwd(), "에 새로 생성합니다.");
+
+                fs.writeFile('./KRMS_Setting.json', JSON.stringify(DeafultSetting, null, 4), () => {
+                    console.log("설정 파일을 수정 후 다시 실행해 주세요. https://github.com/Heavyrisem/KRMS_Client/blob/master/README.md");
+                    process.exit();
+                });
+            } else {
+                fs.readFile('./KRMS_Setting.json', (err, data) => {
+                    let Setting: Setting;
+                    try {
+                        Setting = JSON.parse(data.toString());
+                        resolve(Setting);
+                    } catch(err) {
+                        console.log("JSON 파일을 읽는 중에 오류가 발생했습니다.", err);
+                        process.exit();
+                    }
+                })
+            }
+        });
+    });
+}
 
 (async () => {
-    let Client: ClientInfo = {
-        name: Config.name,
-        system: await init(),
-        user: {
-            name: Config.user.name,
-            passwd: Config.user.passwd
-        }
-    };
 
-    console.log("Login...", Client.name);
+    console.log("KRMS Client Version", Package.version);
+    
+
+    const Setting = await CheckConfigFile();
+    let Client: ClientInfo | null = null;
+    
+    console.log(Text.SettingLoadSuccess[Setting.language]);
+    console.log(Text.Agreement[Setting.language]);
+
+    try {
+        Client = {
+            name: Setting.Server.Name,
+            system: await init(),
+            user: {
+                name: Setting.Server.KRMS_Account.name,
+                passwd: Setting.Server.KRMS_Account.passwd
+            }
+        };
+    } catch(err) {
+        console.log("설정값이 올바르지 않습니다.");
+        process.exit();
+    }
+
+    if (!Client) return;
+
+    console.log(Text.Login[Setting.language], Client.name);
 
     let ServerResponse = await axios.post(`http://kunrai.kro.kr:8898/Monitor/Login`, Client.user);
     Client.user.passwd = undefined;
-    if (!ServerResponse.data.name) return console.log("LOGIN_FAIL", ServerResponse.data);
+    if (!ServerResponse.data.name) {
+        console.log(Text.LoginFaild[Setting.language], ServerResponse.data);
+        process.exit();
+    }
     Client.user = ServerResponse.data;
-
-    console.log("Connecting to Server", Client.system.macaddr);
+    console.log(Text.ConnectingToServer[Setting.language], Client.system.macaddr);
 
     let socket = io('ws://kunrai.kro.kr:8898', {
         query: {
@@ -40,50 +90,11 @@ import axios from 'axios';
 
     socket.on("Error", (Response: {msg: string}) => {
         console.log("ERR", Response.msg);
-    })
-
-    socket.on("Status", (bool: any) => {
-        console.log("Status", bool);
+        process.exit();
     })
 
     socket.on("error", () => {
         console.log("error");
+        process.exit();
     })
-
 })();
-
-
-
-// const app = express();
-// app.use(bodyParser.json());       // to support JSON-encoded bodies
-// app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-//     extended: true
-// }));
-
-
-
-// app.post('/Monitor/GetStatus', async (req, res) => {
-//     let response: ClientUsage = {
-//         ...GetSystemUsage(),
-//         Drives: await GetDisksStatus()
-//     }
-//     res.send(response);
-// })
-
-
-
-// app.listen(8899, async() => {
-//     // await axios.post('http://localhost:8898/Monitor/ServerStarted', system);
-//     let ServerResponse = await axios.post(`http://192.168.1.71:8898/Monitor/Login`, Client.user);
-//     Client.user.passwd = undefined;
-//     if (ServerResponse.data.name) {
-//         console.log('Collecting System Information');
-//         Client.user = ServerResponse.data;
-        
-//         ServerResponse = await axios.post(`http://192.168.1.71:8898/Monitor/ServerLogin`, {ServerInfo: Client});
-//         console.log(ServerResponse.data)
-//     } else {
-//         console.log("Login Failed, ServerResponse:", ServerResponse.data);
-//         process.exit(1);
-//     }
-// })

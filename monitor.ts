@@ -2,7 +2,6 @@ import * as osutill from 'os-utils';
 import * as os from 'os';
 import * as getmac from 'getmac';
 import * as drivelist from 'drivelist';
-import * as Config from './Config/main.json';
 const diskfree = require('diskfree');
 
 import { Drive, System, SystemUsage } from '../Types';

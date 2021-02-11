@@ -10,25 +10,6 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -70,35 +51,85 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var socket_io_client_1 = __importDefault(require("socket.io-client"));
-var Config = __importStar(require("./Config/main.json"));
+var KRMS_Default_json_1 = __importDefault(require("./Settings/KRMS_Default.json"));
+var KRMS_Text_json_1 = __importDefault(require("./KRMS_Text.json"));
 var monitor_1 = require("./monitor");
 var axios_1 = __importDefault(require("axios"));
+var fs_1 = __importDefault(require("fs"));
+var package_json_1 = __importDefault(require("./package.json"));
+var CheckConfigFile = function () {
+    return new Promise(function (resolve) {
+        fs_1.default.stat('./KRMS_Setting.json', function (err, stats) {
+            if (err) {
+                console.log("설정 파일이 존재하지 않습니다.", process.cwd(), "에 새로 생성합니다.");
+                fs_1.default.writeFile('./KRMS_Setting.json', JSON.stringify(KRMS_Default_json_1.default, null, 4), function () {
+                    console.log("설정 파일을 수정 후 다시 실행해 주세요. https://github.com/Heavyrisem/KRMS_Client/blob/master/README.md");
+                    process.exit();
+                });
+            }
+            else {
+                fs_1.default.readFile('./KRMS_Setting.json', function (err, data) {
+                    var Setting;
+                    try {
+                        Setting = JSON.parse(data.toString());
+                        resolve(Setting);
+                    }
+                    catch (err) {
+                        console.log("JSON 파일을 읽는 중에 오류가 발생했습니다.", err);
+                        process.exit();
+                    }
+                });
+            }
+        });
+    });
+};
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var Client, ServerResponse, socket, Requester;
+    var Setting, Client, err_1, ServerResponse, socket, Requester;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
+                console.log("KRMS Client Version", package_json_1.default.version);
+                return [4 /*yield*/, CheckConfigFile()];
+            case 1:
+                Setting = _b.sent();
+                Client = null;
+                console.log(KRMS_Text_json_1.default.SettingLoadSuccess[Setting.language]);
+                console.log(KRMS_Text_json_1.default.Agreement[Setting.language]);
+                _b.label = 2;
+            case 2:
+                _b.trys.push([2, 4, , 5]);
                 _a = {
-                    name: Config.name
+                    name: Setting.Server.Name
                 };
                 return [4 /*yield*/, monitor_1.init()];
-            case 1:
+            case 3:
                 Client = (_a.system = _b.sent(),
                     _a.user = {
-                        name: Config.user.name,
-                        passwd: Config.user.passwd
+                        name: Setting.Server.KRMS_Account.name,
+                        passwd: Setting.Server.KRMS_Account.passwd
                     },
                     _a);
-                console.log("Login...", Client.name);
+                return [3 /*break*/, 5];
+            case 4:
+                err_1 = _b.sent();
+                console.log("설정값이 올바르지 않습니다.");
+                process.exit();
+                return [3 /*break*/, 5];
+            case 5:
+                if (!Client)
+                    return [2 /*return*/];
+                console.log(KRMS_Text_json_1.default.Login[Setting.language], Client.name);
                 return [4 /*yield*/, axios_1.default.post("http://kunrai.kro.kr:8898/Monitor/Login", Client.user)];
-            case 2:
+            case 6:
                 ServerResponse = _b.sent();
                 Client.user.passwd = undefined;
-                if (!ServerResponse.data.name)
-                    return [2 /*return*/, console.log("LOGIN_FAIL", ServerResponse.data)];
+                if (!ServerResponse.data.name) {
+                    console.log(KRMS_Text_json_1.default.LoginFaild[Setting.language], ServerResponse.data);
+                    process.exit();
+                }
                 Client.user = ServerResponse.data;
-                console.log("Connection to Server", Client.system.macaddr);
+                console.log(KRMS_Text_json_1.default.ConnectingToServer[Setting.language], Client.system.macaddr);
                 socket = socket_io_client_1.default('ws://kunrai.kro.kr:8898', {
                     query: {
                         data: JSON.stringify(Client)
@@ -122,40 +153,13 @@ var axios_1 = __importDefault(require("axios"));
                 }); }, 30 * 1000);
                 socket.on("Error", function (Response) {
                     console.log("ERR", Response.msg);
-                });
-                socket.on("Status", function (bool) {
-                    console.log("Status", bool);
+                    process.exit();
                 });
                 socket.on("error", function () {
                     console.log("error");
+                    process.exit();
                 });
                 return [2 /*return*/];
         }
     });
 }); })();
-// const app = express();
-// app.use(bodyParser.json());       // to support JSON-encoded bodies
-// app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-//     extended: true
-// }));
-// app.post('/Monitor/GetStatus', async (req, res) => {
-//     let response: ClientUsage = {
-//         ...GetSystemUsage(),
-//         Drives: await GetDisksStatus()
-//     }
-//     res.send(response);
-// })
-// app.listen(8899, async() => {
-//     // await axios.post('http://localhost:8898/Monitor/ServerStarted', system);
-//     let ServerResponse = await axios.post(`http://192.168.1.71:8898/Monitor/Login`, Client.user);
-//     Client.user.passwd = undefined;
-//     if (ServerResponse.data.name) {
-//         console.log('Collecting System Information');
-//         Client.user = ServerResponse.data;
-//         ServerResponse = await axios.post(`http://192.168.1.71:8898/Monitor/ServerLogin`, {ServerInfo: Client});
-//         console.log(ServerResponse.data)
-//     } else {
-//         console.log("Login Failed, ServerResponse:", ServerResponse.data);
-//         process.exit(1);
-//     }
-// })

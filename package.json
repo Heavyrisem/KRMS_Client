@@ -1,12 +1,13 @@
 {
   "name": "monitoring",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "./dist/client/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-ts": "tsc",
-    "build": "tsc && pkg -t node14-macos-x64 --out-path ./build ."
+    "build": "tsc && pkg --out-path ./build .",
+    "start": "tsc && node dist/client/main.js"
   },
   "bin": {
     "app": "./dist/client/main.js"
