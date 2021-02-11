@@ -65,7 +65,7 @@ const CheckConfigFile = ():Promise<Setting> => {
 
     console.log(Text.Login[Setting.language], Client.name);
 
-    let ServerResponse = await axios.post(`http://kunrai.kro.kr:8898/Monitor/Login`, Client.user);
+    let ServerResponse = await axios.post(`http://krms.kro.kr:8898/Monitor/Login`, Client.user);
     Client.user.passwd = undefined;
     if (!ServerResponse.data.name) {
         console.log(Text.LoginFaild[Setting.language], ServerResponse.data);
@@ -74,7 +74,7 @@ const CheckConfigFile = ():Promise<Setting> => {
     Client.user = ServerResponse.data;
     console.log(Text.ConnectingToServer[Setting.language], Client.system.macaddr);
 
-    let socket = io('ws://kunrai.kro.kr:8898', {
+    let socket = io('ws://krms.kro.kr:8898', {
         query: {
             data: JSON.stringify(Client)
         }
@@ -87,6 +87,11 @@ const CheckConfigFile = ():Promise<Setting> => {
         }
         socket.emit("UsageUpdate", Usage);
     }, 30 * 1000);
+
+    socket.on("Status", (Status: {ok: Boolean}) => {
+        if (Status.ok) console.log(Text.ConnectSucess[Setting.language]);
+        else console.log(Text.ConnectFaild[Setting.language]);
+    })
 
     socket.on("Error", (Response: {msg: string}) => {
         console.log("ERR", Response.msg);

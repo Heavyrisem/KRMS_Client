@@ -120,7 +120,7 @@ var CheckConfigFile = function () {
                 if (!Client)
                     return [2 /*return*/];
                 console.log(KRMS_Text_json_1.default.Login[Setting.language], Client.name);
-                return [4 /*yield*/, axios_1.default.post("http://kunrai.kro.kr:8898/Monitor/Login", Client.user)];
+                return [4 /*yield*/, axios_1.default.post("http://krms.kro.kr:8898/Monitor/Login", Client.user)];
             case 6:
                 ServerResponse = _b.sent();
                 Client.user.passwd = undefined;
@@ -130,7 +130,7 @@ var CheckConfigFile = function () {
                 }
                 Client.user = ServerResponse.data;
                 console.log(KRMS_Text_json_1.default.ConnectingToServer[Setting.language], Client.system.macaddr);
-                socket = socket_io_client_1.default('ws://kunrai.kro.kr:8898', {
+                socket = socket_io_client_1.default('ws://krms.kro.kr:8898', {
                     query: {
                         data: JSON.stringify(Client)
                     }
@@ -151,6 +151,12 @@ var CheckConfigFile = function () {
                         }
                     });
                 }); }, 30 * 1000);
+                socket.on("Status", function (Status) {
+                    if (Status.ok)
+                        console.log(KRMS_Text_json_1.default.ConnectSucess[Setting.language]);
+                    else
+                        console.log(KRMS_Text_json_1.default.ConnectFaild[Setting.language]);
+                });
                 socket.on("Error", function (Response) {
                     console.log("ERR", Response.msg);
                     process.exit();

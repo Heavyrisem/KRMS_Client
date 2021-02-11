@@ -18,5 +18,13 @@
     "ConnectingToServer": {
         "KO": "서버 연결 중..",
         "EN": "Connecting to Server"
+    },
+    "ConnectSucess": {
+        "KO": "서버 연결 성공",
+        "EN": "Connection Successful"
+    },
+    "ConnectFaild": {
+        "KO": "서버 연결 실패",
+        "EN": "Connection failed"
     }
 }
