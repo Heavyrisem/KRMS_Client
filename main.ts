@@ -1,6 +1,6 @@
 
 import io from 'socket.io-client';
-import { ClientInfo, ClientUsage } from '../Types';
+import { ClientInfo, ClientUsage } from './Types';
 import DeafultSetting from './Settings/KRMS_Default.json';
 import Text from './KRMS_Text.json';
 import { GetDisksStatus, GetSystemUsage, init } from './monitor';
@@ -9,6 +9,8 @@ import fs from 'fs';
 import { Setting } from './Settings/Setting';
 
 import Package from './package.json';
+
+const Endpoint = 'www.krms.xyz';
 
 const CheckConfigFile = ():Promise<Setting> => {
     return new Promise(resolve => {
@@ -65,7 +67,7 @@ const CheckConfigFile = ():Promise<Setting> => {
 
     console.log(Text.Login[Setting.language], Client.name);
 
-    let ServerResponse = await axios.post(`http://krms.kro.kr:8898/Monitor/Login`, Client.user);
+    let ServerResponse = await axios.post(`https://${Endpoint}/Monitor/Login`, Client.user);
     Client.user.passwd = undefined;
     if (!ServerResponse.data.name) {
         console.log(Text.LoginFaild[Setting.language], ServerResponse.data);
@@ -74,7 +76,7 @@ const CheckConfigFile = ():Promise<Setting> => {
     Client.user = ServerResponse.data;
     console.log(Text.ConnectingToServer[Setting.language], Client.system.macaddr);
 
-    let socket = io('ws://krms.kro.kr:8898', {
+    let socket = io(`wss://${Endpoint}`, {
         query: {
             data: JSON.stringify(Client)
         }
@@ -98,8 +100,8 @@ const CheckConfigFile = ():Promise<Setting> => {
         process.exit();
     })
 
-    socket.on("error", () => {
-        console.log("error");
+    socket.on("error", (err: any) => {
+        console.log("error", err);
         process.exit();
     })
 })();

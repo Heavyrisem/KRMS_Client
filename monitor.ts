@@ -4,7 +4,7 @@ import * as getmac from 'getmac';
 import * as drivelist from 'drivelist';
 const diskfree = require('diskfree');
 
-import { Drive, System, SystemUsage } from '../Types';
+import { Drive, System, SystemUsage } from './Types';
 
 let system: System = {
     memory: 0,

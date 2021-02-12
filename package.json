@@ -1,16 +1,16 @@
 {
   "name": "monitoring",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "",
   "main": "./dist/client/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-ts": "tsc",
     "build": "tsc && pkg --out-path ./build .",
-    "start": "tsc && node dist/client/main.js"
+    "start": "tsc && node dist/main.js"
   },
   "bin": {
-    "app": "./dist/client/main.js"
+    "app": "./dist/main.js"
   },
   "author": "",
   "license": "ISC",
