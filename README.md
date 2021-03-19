@@ -4,6 +4,11 @@
 
 Socket.io 로 서버와 통신하며 KRMS 계정이 있어야 합니다.
 
+node.js + Typescript 로 개발했습니다.
+
+서버도 같은 구성으로 구축하였고, mongoDB를 사용합니다.
+
+
 ## 사용법
 http://krms.xyz로 이동하여 KRMS 계정을 생성합니다.
 
