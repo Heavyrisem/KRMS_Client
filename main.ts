@@ -67,7 +67,14 @@ const CheckConfigFile = ():Promise<Setting> => {
 
     console.log(Text.Login[Setting.language], Client.name);
 
-    let ServerResponse = await axios.post(`https://${Endpoint}/Monitor/Login`, Client.user);
+    let ServerResponse;
+    try {
+        ServerResponse = await axios.post(`https://${Endpoint}/Monitor/Login`, Client.user);
+    } catch (err) {
+        return console.log("Axios Error", err, Client);
+    }
+    
+    
     Client.user.passwd = undefined;
     if (!ServerResponse.data.name) {
         console.log(Text.LoginFaild[Setting.language], ServerResponse.data);
