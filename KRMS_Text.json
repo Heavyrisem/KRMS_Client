@@ -12,8 +12,8 @@
         "EN": "Loginning"
     },
     "LoginFaild": {
-        "KO": "로그인 실패, KRMS 계정을 정확히 입력해 주세요 http://krms.kro.kr",
-        "EN": "Login Faild, Check your KRMS Account http://krms.kro.kr"
+        "KO": "로그인 실패, KRMS 계정을 정확히 입력해 주세요 https://krms.xyz",
+        "EN": "Login Faild, Check your KRMS Account https://krms.xyz"
     },
     "ConnectingToServer": {
         "KO": "서버 연결 중..",

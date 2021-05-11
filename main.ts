@@ -10,7 +10,7 @@ import { Setting } from './Settings/Setting';
 
 import Package from './package.json';
 
-const Endpoint = 'www.krms.xyz';
+const Endpoint = 'krms.xyz';
 
 const CheckConfigFile = ():Promise<Setting> => {
     return new Promise(resolve => {
